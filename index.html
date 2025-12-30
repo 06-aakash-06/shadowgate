@@ -16,34 +16,23 @@
     <style>
         [x-cloak] { display: none !important; }
         :root { color-scheme: dark; }
-        
         body { background-color: #050505; color: #00ff41; font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
-        
-        /* Scanline */
         .crt-line { width: 100%; height: 2px; background: rgba(0, 255, 65, 0.1); position: absolute; animation: scan 3s linear infinite; pointer-events: none; z-index: 50; }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        
-        /* Glitch Title */
         .glitch { position: relative; display: inline-block; }
         .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050505; }
         .glitch::before { left: 2px; text-shadow: -1px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim-2 3s infinite linear alternate-reverse; }
         .glitch::after { left: -2px; text-shadow: -1px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim-1 2.5s infinite linear alternate-reverse; }
         @keyframes glitch-anim-1 { 0% { clip: rect(20px, 9999px, 80px, 0); } 100% { clip: rect(42px, 9999px, 12px, 0); } }
         @keyframes glitch-anim-2 { 0% { clip: rect(60px, 9999px, 10px, 0); } 100% { clip: rect(10px, 9999px, 90px, 0); } }
-
-        /* UI */
         .input-box { background: #0a0a0a; border: 1px solid #003300; padding: 12px; width: 100%; color: #00ff41; outline: none; margin-bottom: 8px; font-size: 16px; transition: border-color 0.3s; } 
         .input-box:focus { border-color: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, 0.1); }
-        
         .cyber-btn { background: #003300; border: 1px solid #00ff41; color: #00ff41; padding: 15px; width: 100%; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; transition: 0.2s; cursor: pointer; }
         .cyber-btn:hover { background: #004400; box-shadow: 0 0 10px #00ff41; }
         .cyber-btn:active { background: #00ff41; color: #000; }
         .cyber-btn:disabled { border-color: #333; color: #555; background: #000; cursor: not-allowed; }
-        
-        /* Revoke Button */
         .kill-btn { border: 1px solid #ff003c; color: #ff003c; background: rgba(255, 0, 60, 0.05); transition: 0.2s; font-weight: bold; width: 100%; text-align: center; padding: 10px; margin-top: 10px; }
         .kill-btn:hover { background: #ff003c; color: black; box-shadow: 0 0 15px #ff003c; }
-
         .tab-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border: 1px solid; text-align: center; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { background: rgba(0, 255, 65, 0.1); }
     </style>
@@ -61,16 +50,13 @@
             <div class="w-full max-w-sm border border-term-dim p-6 bg-black/80 relative backdrop-blur-sm">
                 <div class="absolute top-2 right-2 w-2 h-2 rounded-full" :class="loading ? 'bg-yellow-500 animate-pulse' : 'bg-term-dim'"></div>
                 <p class="text-xs text-term-dim mb-4 text-left">>> AUTHENTICATION_REQUIRED</p>
-                
                 <button @click="openLogin" class="cyber-btn mb-4">INITIATE_MICROSOFT_LINK</button>
-                
                 <div class="h-20 bg-black border border-term-dim p-2 text-left overflow-y-auto font-mono">
                     <template x-for="log in logs">
                         <p class="text-[10px] text-gray-500"><span class="text-term-green">></span> <span x-text="log"></span></p>
                     </template>
                 </div>
             </div>
-            
             <div class="mt-8 text-[10px] text-gray-500 max-w-xs space-y-2">
                 <p class="text-term-alert">IOS USERS: Turn OFF "Prevent Cross-Site Tracking"</p>
             </div>
@@ -101,6 +87,7 @@
                         <option value="weekendPass">WEEKEND PASS</option>
                         <option value="eveningOutPass">EVENING OUT</option>
                         <option value="workingDayPass">WORKING DAY</option>
+                        <option value="holidayPass">HOLIDAY PASS</option>
                     </select>
 
                     <input x-model="form.place" type="text" placeholder="DESTINATION" class="input-box">
@@ -131,7 +118,7 @@
 
                     <div class="my-4 border-l-4 border-term-warn pl-3 py-1 bg-term-warn/10">
                         <p class="text-xs text-term-warn font-bold leading-relaxed">
-                            "Get the pass with start time at 3:31 pm and end time at 9:59 pm for Gents Hostel and 8:29 pm for Ladies Hostel"
+                            "Start: 3:31 pm | Return: 9:59 pm (Gents) / 8:29 pm (Ladies)"
                         </p>
                     </div>
 
@@ -158,14 +145,12 @@
                                     </div>
                                     <div class="text-term-green text-xs font-bold" x-text="expandedId === p.$id ? '[-]' : '[+]'"></div>
                                 </div>
-                                
                                 <div x-show="expandedId === p.$id" x-transition class="p-4 border-t border-term-green/30 bg-black/40">
                                     <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400 mb-4 font-mono">
                                         <div>START: <span class="text-white" x-text="formatDate(p.startDate)"></span></div>
                                         <div>END: <span class="text-white" x-text="formatDate(p.endDate)"></span></div>
                                         <div class="col-span-2">TYPE: <span class="text-white uppercase" x-text="p.requestType"></span></div>
                                     </div>
-
                                     <div class="flex flex-col gap-2">
                                         <button @click="regenerateQR(p)" class="cyber-btn text-xs py-2">SHOW QR_CODE</button>
                                         <button @click="deletePass(p.$id)" class="kill-btn text-xs">REVOKE_SIGNAL [DELETE]</button>
@@ -194,9 +179,7 @@
                                         <span class="text-gray-500 text-xs" x-text="expandedId === p.$id ? '[-]' : '[+]'"></span>
                                     </div>
                                 </div>
-
                                 <div x-show="expandedId === p.$id" x-transition class="p-3 border-t border-term-dim bg-gray-900/50">
-                                    <p class="text-[10px] text-gray-500 mb-2">ARCHIVED RECORD</p>
                                     <button @click="deletePass(p.$id)" class="kill-btn text-xs border-term-dim text-gray-400 hover:text-term-alert hover:border-term-alert">DELETE LOG</button>
                                 </div>
                             </div>
@@ -215,14 +198,9 @@
                     <div id="qrcode" class="bg-white p-2 mb-4 shadow-[0_0_20px_rgba(0,255,65,0.3)]"></div>
                     <h3 class="text-2xl font-bold text-white tracking-widest" x-text="ticket?.place"></h3>
                     <p class="text-xs text-term-green mt-2 font-bold bg-term-dim/30 px-2 py-1 rounded">STATUS: APPROVED</p>
-                    
                     <div class="flex gap-4 mt-8 w-full">
-                        <button @click="downloadQR" class="cyber-btn text-xs py-3">
-                            DOWNLOAD_IMG
-                        </button>
-                        <button @click="ticket=null" class="text-xs text-gray-500 underline py-2 w-full text-center hover:text-white">
-                            CLOSE_VIEW
-                        </button>
+                        <button @click="downloadQR" class="cyber-btn text-xs py-3">DOWNLOAD_IMG</button>
+                        <button @click="ticket=null" class="text-xs text-gray-500 underline py-2 w-full text-center hover:text-white">CLOSE_VIEW</button>
                     </div>
                 </div>
 
@@ -273,8 +251,7 @@
                     this.client.setEndpoint(this.endpoint).setProject(this.project);
                     this.account = new Account(this.client); 
                     this.databases = new Databases(this.client);
-
-                    // RESTORED V9 LOGIC: Close popup if it was opened by script
+                    
                     if (window.opener) {
                         localStorage.setItem('shadow_sync', Date.now());
                         window.close(); return;
@@ -286,22 +263,6 @@
                     });
                 },
 
-                toggleExpand(id) {
-                    if (this.expandedId === id) {
-                        this.expandedId = null;
-                    } else {
-                        this.expandedId = id;
-                    }
-                },
-
-                openLogin() {
-                    // RESTORED V9 LOGIC: Use window.location.href as callback
-                    const callback = window.location.href; 
-                    const url = `${this.endpoint}/account/sessions/oauth2/microsoft?project=${this.project}&success=${encodeURIComponent(callback)}&failure=${encodeURIComponent(callback)}`;
-                    window.open(url, 'shadow_auth', 'width=800,height=600');
-                    const poller = setInterval(() => { this.checkSession(); if(this.session) clearInterval(poller); }, 2000);
-                },
-
                 async checkSession() {
                     try {
                         this.session = await this.account.get();
@@ -309,27 +270,21 @@
                     } catch { this.session = null; }
                 },
 
+                openLogin() {
+                    const callback = window.location.href; 
+                    const url = `${this.endpoint}/account/sessions/oauth2/microsoft?project=${this.project}&success=${encodeURIComponent(callback)}&failure=${encodeURIComponent(callback)}`;
+                    window.open(url, 'shadow_auth', 'width=800,height=600');
+                    const poller = setInterval(() => { this.checkSession(); if(this.session) clearInterval(poller); }, 2000);
+                },
+
                 async logout() { await this.account.deleteSession('current'); location.reload(); },
                 log(msg) { this.logs.unshift(msg); },
-
-                async deletePass(docId) {
-                    if(!confirm("CONFIRM_DELETION: This will permanently remove the record from the database. Proceed?")) return;
-                    
-                    try {
-                        await this.databases.deleteDocument(this.dbId, this.collId, docId);
-                        this.activePasses = this.activePasses.filter(p => p.$id !== docId);
-                        this.expiredPasses = this.expiredPasses.filter(p => p.$id !== docId);
-                        this.expandedId = null;
-                        this.log(`PASS_${docId.substring(0,4)}_REVOKED`);
-                        alert("TARGET_ELIMINATED");
-                    } catch (e) {
-                        alert("DELETION_FAILED: " + e.message);
-                    }
-                },
+                toggleExpand(id) { this.expandedId = (this.expandedId === id) ? null : id; },
 
                 async injectPass() {
                     if (!this.form.place || !this.form.purpose) return alert("MISSING_DATA_FIELDS");
                     this.loading = true;
+                    
                     try {
                         const startObj = new Date(`${this.form.outDate}T${this.form.outTime}:00`);
                         const endObj = new Date(`${this.form.inDate}T${this.form.inTime}:00`);
@@ -339,40 +294,54 @@
                         const diffMs = Math.abs(endObj - startObj);
                         const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
+                        // 1. Prepare Approval Status Logic
                         let mentorStatus = 'exempted';
-                        let supervisorStatus = 'exempted';
+                        let supervisorStatus = 'approved';
                         let wardenStatus = 'approved';
 
-                        if (this.form.type === 'weekendPass' || this.form.type === 'eveningOutPass') {
-                            supervisorStatus = 'approved'; 
-                            mentorStatus = 'exempted';     
-                            wardenStatus = 'approved';     
-                        }
-                        
                         if (this.form.type === 'workingDayPass') {
-                            supervisorStatus = 'approved'; 
-                            mentorStatus = 'approved';     
-                            wardenStatus = 'approved';
-                            }
+                            mentorStatus = 'approved';
+                        } else if (this.form.type === 'holidayPass') {
+                            mentorStatus = 'exempted';
+                        }
 
-                        const doc = await this.databases.createDocument(this.dbId, this.collId, ID.unique(), {
-                            requestType: this.form.type, 
-                            place: this.form.place, 
-                            startDate: startObj.toISOString(), 
+                        // 2. Build the Document Payload
+                        const payload = {
+                            requestType: this.form.type,
+                            place: this.form.place,
+                            startDate: startObj.toISOString(),
                             endDate: endObj.toISOString(),
                             purpose: this.form.purpose,
-                            students: this.session.$id, 
-                            status: 'approved', 
+                            students: this.session.$id,
+                            status: 'approved',
                             wardenApproval: wardenStatus,
                             mentorApproval: mentorStatus,
-                            supervisorApproval: supervisorStatus, 
+                            supervisorApproval: supervisorStatus,
                             numberOfDays: days
-                        });
+                        };
+
+                        // 3. Add Holiday-Specific Field
+                        if (this.form.type === 'holidayPass') {
+                            payload.holidaySubType = 'declaredHoliday';
+                        }
+
+                        // 4. Execute single Write Request
+                        const doc = await this.databases.createDocument(
+                            this.dbId, 
+                            this.collId, 
+                            ID.unique(), 
+                            payload
+                        );
                         
                         this.regenerateQR(doc);
                         this.log('INJECTION_SUCCESSFUL');
-                    } catch (e) { alert(e.message); }
-                    this.loading = false;
+
+                    } catch (e) { 
+                        alert(e.message); 
+                        this.log('INJECTION_FAILED');
+                    } finally {
+                        this.loading = false;
+                    }
                 },
 
                 async loadHistory() {
@@ -396,6 +365,18 @@
                     } catch(e) { console.error(e); }
                 },
 
+                async deletePass(docId) {
+                    if(!confirm("CONFIRM_DELETION: Permanent DB removal. Proceed?")) return;
+                    try {
+                        await this.databases.deleteDocument(this.dbId, this.collId, docId);
+                        this.activePasses = this.activePasses.filter(p => p.$id !== docId);
+                        this.expiredPasses = this.expiredPasses.filter(p => p.$id !== docId);
+                        this.expandedId = null;
+                        this.log(`PASS_REVOKED`);
+                        alert("TARGET_ELIMINATED");
+                    } catch (e) { alert("FAILED: " + e.message); }
+                },
+
                 formatDate(isoString) {
                     const d = new Date(isoString);
                     return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
@@ -411,20 +392,12 @@
                 },
 
                 downloadQR() {
-                    const img = document.querySelector('#qrcode img');
-                    if (img && img.src) {
+                    const canvas = document.querySelector('#qrcode canvas');
+                    if (canvas) {
                         const link = document.createElement('a');
-                        link.href = img.src;
+                        link.href = canvas.toDataURL();
                         link.download = `PASS_${this.ticket.place}.png`;
                         link.click();
-                    } else {
-                        const canvas = document.querySelector('#qrcode canvas');
-                        if (canvas) {
-                            const link = document.createElement('a');
-                            link.href = canvas.toDataURL();
-                            link.download = `PASS_${this.ticket.place}.png`;
-                            link.click();
-                        }
                     }
                 },
 
