@@ -16,23 +16,33 @@
     <style>
         [x-cloak] { display: none !important; }
         :root { color-scheme: dark; }
+        
         body { background-color: #050505; color: #00ff41; font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
+        
+        /* Scanline */
         .crt-line { width: 100%; height: 2px; background: rgba(0, 255, 65, 0.1); position: absolute; animation: scan 3s linear infinite; pointer-events: none; z-index: 50; }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        
+        /* Glitch Title */
         .glitch { position: relative; display: inline-block; }
         .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050505; }
         .glitch::before { left: 2px; text-shadow: -1px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim-2 3s infinite linear alternate-reverse; }
         .glitch::after { left: -2px; text-shadow: -1px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim-1 2.5s infinite linear alternate-reverse; }
         @keyframes glitch-anim-1 { 0% { clip: rect(20px, 9999px, 80px, 0); } 100% { clip: rect(42px, 9999px, 12px, 0); } }
         @keyframes glitch-anim-2 { 0% { clip: rect(60px, 9999px, 10px, 0); } 100% { clip: rect(10px, 9999px, 90px, 0); } }
+
+        /* UI Elements */
         .input-box { background: #0a0a0a; border: 1px solid #003300; padding: 12px; width: 100%; color: #00ff41; outline: none; margin-bottom: 8px; font-size: 16px; transition: border-color 0.3s; } 
         .input-box:focus { border-color: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, 0.1); }
+        
         .cyber-btn { background: #003300; border: 1px solid #00ff41; color: #00ff41; padding: 15px; width: 100%; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; transition: 0.2s; cursor: pointer; }
         .cyber-btn:hover { background: #004400; box-shadow: 0 0 10px #00ff41; }
         .cyber-btn:active { background: #00ff41; color: #000; }
         .cyber-btn:disabled { border-color: #333; color: #555; background: #000; cursor: not-allowed; }
+        
         .kill-btn { border: 1px solid #ff003c; color: #ff003c; background: rgba(255, 0, 60, 0.05); transition: 0.2s; font-weight: bold; width: 100%; text-align: center; padding: 10px; margin-top: 10px; }
         .kill-btn:hover { background: #ff003c; color: black; box-shadow: 0 0 15px #ff003c; }
+
         .tab-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: bold; border: 1px solid; text-align: center; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { background: rgba(0, 255, 65, 0.1); }
     </style>
@@ -51,12 +61,14 @@
                 <div class="absolute top-2 right-2 w-2 h-2 rounded-full" :class="loading ? 'bg-yellow-500 animate-pulse' : 'bg-term-dim'"></div>
                 <p class="text-xs text-term-dim mb-4 text-left">>> AUTHENTICATION_REQUIRED</p>
                 <button @click="openLogin" class="cyber-btn mb-4">INITIATE_MICROSOFT_LINK</button>
+                
                 <div class="h-20 bg-black border border-term-dim p-2 text-left overflow-y-auto font-mono">
                     <template x-for="log in logs">
                         <p class="text-[10px] text-gray-500"><span class="text-term-green">></span> <span x-text="log"></span></p>
                     </template>
                 </div>
             </div>
+            
             <div class="mt-8 text-[10px] text-gray-500 max-w-xs space-y-2">
                 <p class="text-term-alert">IOS USERS: Turn OFF "Prevent Cross-Site Tracking"</p>
             </div>
@@ -89,6 +101,15 @@
                         <option value="workingDayPass">WORKING DAY</option>
                         <option value="holidayPass">HOLIDAY PASS</option>
                     </select>
+
+                    <div x-show="form.type === 'holidayPass'" x-transition class="mb-4">
+                        <label class="text-[9px] text-term-green block mb-1">>> HOLIDAY_SUBTYPE</label>
+                        <select x-model="form.holidaySubType" class="input-box bg-black text-white border-term-green/50">
+                            <option value="declaredHoliday">DECLARED HOLIDAY</option>
+                            <option value="semesterBreak">SEMESTER BREAK</option>
+                            <option value="studyHoliday">STUDY HOLIDAY</option>
+                        </select>
+                    </div>
 
                     <input x-model="form.place" type="text" placeholder="DESTINATION" class="input-box">
                     
@@ -145,12 +166,17 @@
                                     </div>
                                     <div class="text-term-green text-xs font-bold" x-text="expandedId === p.$id ? '[-]' : '[+]'"></div>
                                 </div>
+                                
                                 <div x-show="expandedId === p.$id" x-transition class="p-4 border-t border-term-green/30 bg-black/40">
                                     <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400 mb-4 font-mono">
                                         <div>START: <span class="text-white" x-text="formatDate(p.startDate)"></span></div>
                                         <div>END: <span class="text-white" x-text="formatDate(p.endDate)"></span></div>
                                         <div class="col-span-2">TYPE: <span class="text-white uppercase" x-text="p.requestType"></span></div>
+                                        <template x-if="p.holidaySubType">
+                                            <div class="col-span-2 text-term-warn">SUB: <span class="uppercase" x-text="p.holidaySubType"></span></div>
+                                        </template>
                                     </div>
+
                                     <div class="flex flex-col gap-2">
                                         <button @click="regenerateQR(p)" class="cyber-btn text-xs py-2">SHOW QR_CODE</button>
                                         <button @click="deletePass(p.$id)" class="kill-btn text-xs">REVOKE_SIGNAL [DELETE]</button>
@@ -179,6 +205,7 @@
                                         <span class="text-gray-500 text-xs" x-text="expandedId === p.$id ? '[-]' : '[+]'"></span>
                                     </div>
                                 </div>
+
                                 <div x-show="expandedId === p.$id" x-transition class="p-3 border-t border-term-dim bg-gray-900/50">
                                     <button @click="deletePass(p.$id)" class="kill-btn text-xs border-term-dim text-gray-400 hover:text-term-alert hover:border-term-alert">DELETE LOG</button>
                                 </div>
@@ -198,6 +225,7 @@
                     <div id="qrcode" class="bg-white p-2 mb-4 shadow-[0_0_20px_rgba(0,255,65,0.3)]"></div>
                     <h3 class="text-2xl font-bold text-white tracking-widest" x-text="ticket?.place"></h3>
                     <p class="text-xs text-term-green mt-2 font-bold bg-term-dim/30 px-2 py-1 rounded">STATUS: APPROVED</p>
+                    
                     <div class="flex gap-4 mt-8 w-full">
                         <button @click="downloadQR" class="cyber-btn text-xs py-3">DOWNLOAD_IMG</button>
                         <button @click="ticket=null" class="text-xs text-gray-500 underline py-2 w-full text-center hover:text-white">CLOSE_VIEW</button>
@@ -239,6 +267,7 @@
                 
                 form: { 
                     type: 'weekendPass', 
+                    holidaySubType: 'declaredHoliday',
                     place: '', 
                     outDate: new Date().toISOString().split('T')[0], 
                     outTime: '16:00', 
@@ -301,8 +330,6 @@
 
                         if (this.form.type === 'workingDayPass') {
                             mentorStatus = 'approved';
-                        } else if (this.form.type === 'holidayPass') {
-                            mentorStatus = 'exempted';
                         }
 
                         // 2. Build the Document Payload
@@ -322,7 +349,7 @@
 
                         // 3. Add Holiday-Specific Field
                         if (this.form.type === 'holidayPass') {
-                            payload.holidaySubType = 'declaredHoliday';
+                            payload.holidaySubType = this.form.holidaySubType;
                         }
 
                         // 4. Execute single Write Request
@@ -405,10 +432,17 @@
                     const qr = new Html5Qrcode("reader");
                     qr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => { qr.stop(); this.verify(txt); });
                 },
+
                 async handleFileUpload(e) {
                     const qr = new Html5Qrcode("reader");
-                    try { const res = await qr.scanFile(e.target.files[0], true); this.verify(res); } catch { this.scanResult = "ERR: NO_DATA"; }
+                    try { 
+                        const res = await qr.scanFile(e.target.files[0], true); 
+                        this.verify(res); 
+                    } catch { 
+                        this.scanResult = "ERR: NO_DATA"; 
+                    }
                 },
+
                 async verify(id) {
                     try {
                         const doc = await this.databases.getDocument(this.dbId, this.collId, id);
