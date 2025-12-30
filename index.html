@@ -353,6 +353,7 @@
                             supervisorStatus = 'approved'; 
                             mentorStatus = 'approved';     
                             wardenStatus = 'approved';
+                            }
 
                         const doc = await this.databases.createDocument(this.dbId, this.collId, ID.unique(), {
                             requestType: this.form.type, 
